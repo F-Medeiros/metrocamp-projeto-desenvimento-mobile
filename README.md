@@ -12,15 +12,15 @@
     - Consulte os guildelines para se adequar os padrões __minimamente__
 
 ### Integrantes do grupo
-- Flávio Medeiros
-- Lucas Francisco
-- Tiago Pinto
-- Thomas Almeida
+* Flávio Medeiros
+* Lucas Francisco
+* Tiago Pinto
+* Thomas Almeida
 
 ### Grupo
-- Lexus
+* Lexus
 
 ### Tarefas à entregar
 ##### 15/02/2018
-- Nome do grupo e nome dos integrantes
-- Imagem das telas e do fluxo
+* Nome do grupo e nome dos integrantes
+* Imagem das telas e do fluxo
