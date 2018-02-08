@@ -1,6 +1,6 @@
 # Metrocamp Projeto de Desenvolvimento Mobile
 
-###Requisitos
+### Requisitos
 1. Formação dos grupos (até 4 pessoas)
 
 2. Pensar em um app que o grupo deseje desenvolver
@@ -11,16 +11,16 @@
 3. Prototipar (em papel) as principais telas e fluxo de navegação (para uma plataforma)
 3.1. Consulte os guildelines para se adequar os padrões __minimamente__
 
-###Integrantes do grupo
+### Integrantes do grupo
 - Flávio Medeiros
 - Lucas Francisco
 - Tiago Pinto
 - Thomas Almeida
 
-###Grupo
+### Grupo
 - Lexus
 
-###Tarefas à entregar
-#####15/02/2018
+### Tarefas à entregar
+##### 15/02/2018
 - Nome do grupo e nome dos integrantes
 - Imagem das telas e do fluxo
