@@ -29,5 +29,5 @@
 
 ### Aplicações utilizadas para o desenvolvimento
 
-* Prototipação [https://www.invisionapp.com](https://www.invisionapp.com)
-* Prototipação [https://www.omnigroup.com/omnigraffle](https://www.omnigroup.com/omnigraffle)
+* Prototipação [https://www.invisionapp.com](https://www.invisionapp.com){:target="_blank"}
+* Prototipação [https://www.omnigroup.com/omnigraffle](https://www.omnigroup.com/omnigraffle){:target="_blank"}
