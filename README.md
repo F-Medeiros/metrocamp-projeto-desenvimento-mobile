@@ -7,7 +7,6 @@
     - Pode ser o projeto do semestre ou um projeto "hipotético"
     - Pensar nas principais funcionalidades do app
 
-
 * Prototipar (em papel) as principais telas e fluxo de navegação (para uma plataforma)
     - Consulte os guildelines para se adequar os padrões __minimamente__
 
@@ -24,3 +23,7 @@
 ##### 15/02/2018
 * Nome do grupo e nome dos integrantes
 * Imagem das telas e do fluxo
+
+
+### Ideias do projeto
+* Agendamento para desligar o veiculo
