@@ -24,12 +24,9 @@
 * Nome do grupo e nome dos integrantes
 * Imagem das telas e do fluxo
 
-### Ideias do projeto
-* Agendamento para desligar o veiculo
+### Ideia do projeto
+* Transferencia de arquivos via http
 
 ### Aplicações utilizadas para o desenvolvimento
 
 * Prototipação [https://marvelapp.com](https://marvelapp.com)
-* Prototipação [https://www.figma.com](https://www.figma.com)
-* Prototipação [https://www.invisionapp.com](https://www.invisionapp.com)
-* Prototipação [https://www.omnigroup.com/omnigraffle](https://www.omnigroup.com/omnigraffle)
