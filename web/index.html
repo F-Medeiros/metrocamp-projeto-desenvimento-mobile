@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+	<meta charset="utf-8">
+	<title>Remote</title>
+	<link rel="stylesheet" type="text/css" href="./assets/css/bootstrap.min.css">
+	<link rel="stylesheet" type="text/css" href="./assets/css/bootstrap-grid.min.css">
+	<link rel="stylesheet" type="text/css" href="./assets/css/bootstrap-reboot.min.css">
+	<link rel="stylesheet" type="text/css" href="./assets/css/fontawesome-all.min.css">
+	<link rel="stylesheet" type="text/css" href="./assets/css/personalizacao.css">
+	<link rel="stylesheet" href="./assets/plugins/icheck/skins/minimal/blue.css">
+
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+</head>
+<body>
+
+	<div class="container">
+		<div class="row">
+  			<div class="col-md-12">
+				<nav aria-label="breadcrumb">
+					<ol class="breadcrumb" id="breadcrumb">
+						<li class="breadcrumb-item"><a href="#"><i class="fa fa-home"></i></a></li>
+						<li class="breadcrumb-item"><a href="#">Library</a></li>
+						<li class="breadcrumb-item active" aria-current="page">Data</li>
+					</ol>
+				</nav>
+  			</div>
+		</div>
+
+		<div class="row">
+			<div class="col-md-3 offset-md-9">
+				<input id="pesquisar" type="text" class="form-control" placeholder="Pesquisar">
+			</div>
+		</div>
+
+		<div class="row">
+			<div class="col-md-12">
+				&nbsp;
+			</div>
+		</div>		
+
+		<div class="row">
+			<div class="col-md-12">
+				<div id="files" class="table-responsive-md">
+					<table class="table table-fixed table-selected">
+						<thead>
+							<tr>
+								<th class="text-right">#</th>
+								<th class="text-left">Nome</th>
+								<th class="text-right">Tamanho</th>
+								<th class="text-right">Alterado em</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td class="text-muted text-right">1</td>
+								<td class="text-left">
+									<input type="checkbox">
+									<a href="#">
+										<i class="fa fa-folder"></i>
+										Imagens
+									</a>
+								</td>
+								<td class="text-right">-</td>
+								<td class="text-right">21/03/2018 12h00</td>
+							</tr>
+							<tr>
+								<td class="text-muted text-right">2</td>
+								<td class="text-left">
+									<input type="checkbox">
+									<a href="#">
+										<i class="fa fa-file"></i>
+										checksum.iso
+									</a>
+								</td>
+								<td class="text-right">2.5 gb</td>
+								<td class="text-right">21/03/2018 12h00</td>
+							</tr>
+						</tbody>
+						<tfoot>
+							<tr>
+								<td colspan="4">
+									<small class="float-right text-muted">1 pasta e 1 arquivo, 2.5 gb no total</small>
+								</td>
+							</tr>
+						</tfoot>
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
+
+
+	<script type="text/javascript" src="./assets/js/jquery-3.2.1.slim.min.js"></script>
+	<script type="text/javascript" src="./assets/js/popper.min.js"></script>
+	<script type="text/javascript" src="./assets/js/bootstrap.min.js"></script>
+	<script type="text/javascript" src="./assets/js/bootstrap.bundle.min.js"></script>
+	<script type="text/javascript" src="./assets/plugins/icheck/icheck.min.js"></script>
+
+</body>
+</html>
+
+<script type="text/javascript">
+	
+$(document).ready(function(){
+  $('input').iCheck({
+    checkboxClass: 'icheckbox_minimal-blue',
+    radioClass: 'iradio_minimal-blue'
+  });
+});
+
+</script>
