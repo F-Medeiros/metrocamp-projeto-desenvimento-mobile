@@ -1,0 +1,38 @@
+{
+  "pastas": [
+    {
+      "nome": "Documentos",
+      "updated_at": "2018-03-21 12:00:00"
+    },
+    {
+      "nome": "Imagens",
+      "updated_at": "2018-03-21 12:00:00"
+    },
+    {
+      "nome": "Videos",
+      "updated_at": "2018-03-21 12:00:00"
+    }
+  ],
+  "arquivos": [
+    {
+      "nome": "foto.jpg",
+      "tamanho": "57898",
+      "updated_at": "2018-03-21 12:00:00"
+    },
+    {
+      "nome": "documento.docx",
+      "tamanho": "249656",
+      "updated_at": "2018-03-21 12:00:00"
+    },
+    {
+      "nome": "planilha.xlsx",
+      "tamanho": "1520941",
+      "updated_at": "2018-03-21 12:00:00"
+    },
+    {
+      "nome": "musica.mp3",
+      "tamanho": "3889684",
+      "updated_at": "2018-03-21 12:00:00"
+    }
+  ]
+}

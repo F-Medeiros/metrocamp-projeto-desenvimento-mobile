@@ -3,12 +3,13 @@
 <head>
 	<meta charset="utf-8">
 	<title>Remote</title>
-	<link rel="stylesheet" type="text/css" href="./assets/css/bootstrap.min.css">
-	<link rel="stylesheet" type="text/css" href="./assets/css/bootstrap-grid.min.css">
-	<link rel="stylesheet" type="text/css" href="./assets/css/bootstrap-reboot.min.css">
-	<link rel="stylesheet" type="text/css" href="./assets/css/fontawesome-all.min.css">
+	<script type="text/javascript" src="./assets/plugins/vue/vue.js"></script>
+	<link rel="stylesheet" type="text/css" href="./assets/plugins/bootstrap/css/bootstrap.min.css">
+	<link rel="stylesheet" type="text/css" href="./assets/plugins/bootstrap/css/bootstrap-grid.min.css">
+	<link rel="stylesheet" type="text/css" href="./assets/plugins/bootstrap/css/bootstrap-reboot.min.css">
+	<link rel="stylesheet" type="text/css" href="./assets/plugins/fontawesome/css/fontawesome-all.min.css">
 	<link rel="stylesheet" type="text/css" href="./assets/css/personalizacao.css">
-	<link rel="stylesheet" href="./assets/plugins/icheck/skins/minimal/blue.css">
+	<link rel="stylesheet" type="text/css" href="./assets/plugins/icheck/skins/minimal/blue.css">
 
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 </head>
@@ -21,7 +22,7 @@
 					<ol class="breadcrumb" id="breadcrumb">
 						<li class="breadcrumb-item"><a href="#"><i class="fa fa-home"></i></a></li>
 						<li class="breadcrumb-item"><a href="#">Library</a></li>
-						<li class="breadcrumb-item active" aria-current="page">Data</li>
+						<li class="breadcrumb-item active" aria-current="page">{{message}}</li>
 					</ol>
 				</nav>
   			</div>
@@ -37,11 +38,12 @@
 			<div class="col-md-12">
 				&nbsp;
 			</div>
-		</div>		
+		</div>
 
 		<div class="row">
 			<div class="col-md-12">
-				<div id="files" class="table-responsive-md">
+				<div id="explorador" class="table-responsive-md">
+					{{message}}
 					<table class="table table-fixed table-selected">
 						<thead>
 							<tr>
@@ -91,17 +93,32 @@
 	</div>
 
 
-	<script type="text/javascript" src="./assets/js/jquery-3.2.1.slim.min.js"></script>
-	<script type="text/javascript" src="./assets/js/popper.min.js"></script>
-	<script type="text/javascript" src="./assets/js/bootstrap.min.js"></script>
-	<script type="text/javascript" src="./assets/js/bootstrap.bundle.min.js"></script>
-	<script type="text/javascript" src="./assets/plugins/icheck/icheck.min.js"></script>
+
+<script type="text/javascript" src="./assets/js/jquery-3.2.1.slim.min.js"></script>
+<script type="text/javascript" src="./assets/js/popper.min.js"></script>
+<script type="text/javascript" src="./assets/plugins/bootstrap/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="./assets/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script type="text/javascript" src="./assets/plugins/icheck/icheck.min.js"></script>
 
 </body>
 </html>
 
 <script type="text/javascript">
-	
+
+var breadcrumb = new Vue({
+	el: '#breadcrumb',
+	data: {
+		message: 'breadcrumb'
+	}
+});
+
+var explorador = new Vue({
+	el: '#explorador',
+	data: {
+		message: 'explorador'
+	}
+});
+
 $(document).ready(function(){
   $('input').iCheck({
     checkboxClass: 'icheckbox_minimal-blue',
