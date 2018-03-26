@@ -1,38 +1,38 @@
 {
-  "pastas": [
+  "folders": [
     {
-      "nome": "Documentos",
-      "updated_at": "2018-03-21 12:00:00"
+      "name": "Documentos",
+      "updated_at": "2018-03-21 12:25:00"
     },
     {
-      "nome": "Imagens",
-      "updated_at": "2018-03-21 12:00:00"
+      "name": "Imagens",
+      "updated_at": "2018-03-21 12:26:00"
     },
     {
-      "nome": "Videos",
-      "updated_at": "2018-03-21 12:00:00"
+      "name": "Videos",
+      "updated_at": "2018-03-21 12:27:00"
     }
   ],
-  "arquivos": [
+  "files": [
     {
-      "nome": "foto.jpg",
-      "tamanho": "57898",
-      "updated_at": "2018-03-21 12:00:00"
+      "name": "foto.jpg",
+      "size": 57898,
+      "updated_at": "2018-03-21 12:28:00"
     },
     {
-      "nome": "documento.docx",
-      "tamanho": "249656",
-      "updated_at": "2018-03-21 12:00:00"
+      "name": "documento.docx",
+      "size": 249656,
+      "updated_at": "2018-03-21 12:29:00"
     },
     {
-      "nome": "planilha.xlsx",
-      "tamanho": "1520941",
-      "updated_at": "2018-03-21 12:00:00"
+      "name": "planilha.xlsx",
+      "size": 1520941,
+      "updated_at": "2018-03-21 12:30:00"
     },
     {
-      "nome": "musica.mp3",
-      "tamanho": "3889684",
-      "updated_at": "2018-03-21 12:00:00"
+      "name": "musica.mp3",
+      "size": 3889684,
+      "updated_at": "2018-03-21 12:31:00"
     }
   ]
 }
