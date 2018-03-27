@@ -1,7 +1,7 @@
 // usage: {{ file.name | fileIcon }}
 Vue.filter('fileIcon', function (filename) {
 
-  var extension = (/[.]/.exec(filename)) ? /[^.]+$/.exec(filename)[0] : undefined;
+  var extension = (/[.]/.exec(filename)) ? /[^.]+$/.exec(filename)[0] : '';
 
   var retorno = "fa fa-file";
 

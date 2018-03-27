@@ -39,7 +39,10 @@
 		</div>
 
 		<div class="row">
-			<div class="col-md-3 offset-md-9">
+			<div class="col-md-9">
+				<button @click="back();" class="btn btn-primary"><i class="fa fa-arrow-left"></i></button>
+			</div>
+			<div class="col-md-3">
 				<input id="pesquisar" type="text" class="form-control" placeholder="Pesquisar">
 			</div>
 		</div>
@@ -49,6 +52,14 @@
 				&nbsp;
 			</div>
 		</div>
+
+		<div class="row">
+			<div class="col-md-12">
+				upload | delete | rename | move | copy
+			</div>
+		</div>
+
+
 
 		<div class="row">
 			<div class="col-md-12">
@@ -73,10 +84,10 @@
 						      <input type="checkbox">
 						    </td>
 						    <td class="text-left">
-						      <a href="#">
+						      <span class="btn btn-link" @click="openFolder(resource.name)">
 						        <i class="fa fa-folder"></i>
 						        {{resource.name}}
-						      </a>
+						      </span>
 						    </td>
 						    <td class="text-center">Pasta</td>
 						    <td class="text-center"> - </td>
@@ -89,10 +100,10 @@
 						      <input type="checkbox">
 						    </td>
 						    <td class="text-left">
-						      <a href="#">
+						      <span class="btn btn-link" @click="openFile(resource.name)">
 						        <i :class="resource.name | fileIcon"></i>
 						        {{resource.name}}
-						      </a>
+						      </span>
 						    </td>
 						    <td class="text-center">Arquivo</td>
 						    <td class="text-center">{{resource.size | prettyBytes}}</td>
@@ -128,6 +139,8 @@
 
 <script type="text/javascript">
 
+Vue.http.options.emulateJSON = true; // send
+
 var explorador = new Vue({
 	el: '#explorador',
 	data: {
@@ -143,11 +156,19 @@ var explorador = new Vue({
 		}
 	},
 	created: function(){
-		this.getList()
+		this.getResources(this.path)
 	},
 	methods: {
-		getList: function(){
-			this.$http.get('exemplo.json').then( response => {
+		getResources: function(){
+			this.$http.post(
+				'emulate.device.route.php',
+				{
+					route: "listResources",
+					variables: {
+						"path": this.resources.path
+					}
+				}
+			).then( response => {
 			  this.resources = response.data
 			});
 		},
@@ -164,6 +185,23 @@ var explorador = new Vue({
 			this.resources.folders = this.resources.folders.sort(compareValues(key, this.orderBy.order));
 			this.resources.files = this.resources.files.sort(compareValues(key, this.orderBy.order));
 
+		},
+		back: function(){
+
+			let aux = this.splitPath(this.resources.path);
+			aux.pop();
+
+			if(aux.length)
+				this.resources.path = '\\' + aux.join('\\') + '\\';
+			else
+				this.resources.path = '\\';
+
+			this.getResources();
+		},
+		openFolder: function(folderName){
+			this.resources.path += folderName + '/';
+
+			this.getResources();
 		}
 	}
 
@@ -171,12 +209,10 @@ var explorador = new Vue({
 
 
 
-// function for dynamic sorting
 function compareValues(key, order=1) {
   return function(a, b) {
     if(!a.hasOwnProperty(key) || !b.hasOwnProperty(key)) {
-      // property doesn't exist on either object
-        return 0;
+      return 0;
     }
 
     const varA = (typeof a[key] === 'string') ?
