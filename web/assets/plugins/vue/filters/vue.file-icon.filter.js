@@ -3,14 +3,14 @@ Vue.filter('fileIcon', function (filename) {
 
   var extension = (/[.]/.exec(filename)) ? /[^.]+$/.exec(filename)[0] : '';
 
-  var retorno = "fa fa-file";
+  var retorno = "text-muted fa fa-file";
 
   switch (extension.toLowerCase()) {
     case 'tar':
     case 'tar.gz':
     case '7zip':
     case 'rar':
-    case 'zip': retorno = 'fa fa-file-archive'; break;
+    case 'zip': retorno = 'text-muted fa fa-file-archive'; break;
 
     case 'mpeg':
     case 'aac':
@@ -20,9 +20,9 @@ Vue.filter('fileIcon', function (filename) {
     case 'alac':
     case 'zpl':
     case 'wpl':
-    case 'mp3': retorno = 'fa fa-file-audio'; break;
+    case 'mp3': retorno = 'text-muted fa fa-file-audio'; break;
 
-    case 'txt': retorno = 'fa fa-file-edit'; break;
+    case 'txt': retorno = 'text-muted fa fa-file-code'; break;
 
     case 'xls':
     case 'ods':
@@ -31,7 +31,7 @@ Vue.filter('fileIcon', function (filename) {
     case 'xlt':
     case 'csv':
     case 'xlsm':
-    case 'xlsx': retorno = 'fa fa-file-excel'; break;
+    case 'xlsx': retorno = 'text-muted fa fa-file-excel'; break;
 
     case 'doc':
     case 'docx':
@@ -40,19 +40,19 @@ Vue.filter('fileIcon', function (filename) {
     case 'fodt':
     case 'dot':
     case 'rtf':
-    case 'docm': retorno = 'fa fa-file-word'; break;
+    case 'docm': retorno = 'text-muted fa fa-file-word'; break;
 
-    case 'pdf': retorno = 'fa fa-file-pdf'; break;
+    case 'pdf': retorno = 'text-muted fa fa-file-pdf'; break;
 
     case 'xvid':
     case 'wmv':
     case 'mpeg4':
     case 'mkv':
-    case 'mp4': retorno = 'fa fa-file-video'; break;
+    case 'mp4': retorno = 'text-muted fa fa-file-video'; break;
 
     case 'ppt':
     case 'pptx':
-    case 'odp': retorno = 'fa fa-file-powerpoint'; break;
+    case 'odp': retorno = 'text-muted fa fa-file-powerpoint'; break;
 
     case 'jpg':
     case 'jpeg':
@@ -60,7 +60,7 @@ Vue.filter('fileIcon', function (filename) {
     case 'bmp':
     case 'gif':
     case 'tif':
-    case 'tiff': retorno = 'fa fa-file-image'; break;
+    case 'tiff': retorno = 'text-muted fa fa-file-image'; break;
 
   }
 

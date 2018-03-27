@@ -1,0 +1,4 @@
+.table-sort th{
+  cursor:pointer;
+  text-decoration: underline;
+}

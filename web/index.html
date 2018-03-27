@@ -25,10 +25,14 @@
 				<nav aria-label="breadcrumb">
 					<ol class="breadcrumb" id="breadcrumb">
 
-						<li class="breadcrumb-item"><a href="#"><i class="fa fa-home"></i></a></li>
+						<li class="breadcrumb-item">
+							<span class="btn btn-link" @click="goHome();">
+								<i class="fa fa-home"></i>
+							</span>
+						</li>
 
 						<li v-for="(value, index) in splitPath(resources.path)" class="breadcrumb-item">
-							<a href="#">{{value}}</a>
+							<span class="btn btn-link" @click="openFolderByIndex(index);">{{value}}</span>
 						</li>
 
 						<!-- <li class="breadcrumb-item"><a href="#">Library</a></li>
@@ -40,10 +44,10 @@
 
 		<div class="row">
 			<div class="col-md-9">
-				<button @click="back();" class="btn btn-primary"><i class="fa fa-arrow-left"></i></button>
+				<button @click="goBack();" class="btn btn-primary"><i class="fa fa-arrow-left"></i></button>
 			</div>
 			<div class="col-md-3">
-				<input id="pesquisar" type="text" class="form-control" placeholder="Pesquisar">
+				<input v-model="search" type="text" class="form-control" placeholder="Pesquisar">
 			</div>
 		</div>
 
@@ -64,11 +68,11 @@
 		<div class="row">
 			<div class="col-md-12">
 				<div class="table-responsive-md">
-					<table class="table table-fixed table-selected">
+					<table class="table table-fixed table-sort">
 						<thead>
 							<tr>
 								<th class="text-right">
-									<input type="checkbox">
+									<input type="checkbox" v-model="selectedAll">
 								</th>
 								<th @click="sortBy('name')" class="text-left">Nome</th>
 								<th @click="sortBy('type')" class="text-center">Tipo</th>
@@ -79,13 +83,13 @@
 						<tbody>
 
 
-							<tr v-for="resource in resources.folders">
+							<tr v-for="resource in resources.folders" v-bind:class="{'d-none': filterSearch(resource)}">
 						    <td class="text-right">
-						      <input type="checkbox">
+						      <input type="checkbox" :value="resource.name" v-model="selectedFolders">
 						    </td>
 						    <td class="text-left">
 						      <span class="btn btn-link" @click="openFolder(resource.name)">
-						        <i class="fa fa-folder"></i>
+						        <i class="text-warning fa fa-folder"></i>
 						        {{resource.name}}
 						      </span>
 						    </td>
@@ -95,9 +99,9 @@
 						  </tr>
 
 
-							<tr v-for="resource in resources.files">
+							<tr v-for="resource in resources.files" v-bind:class="{'d-none': filterSearch(resource)}">
 						    <td class="text-right">
-						      <input type="checkbox">
+						      <input type="checkbox" :value="resource.name" v-model="selectedFiles">
 						    </td>
 						    <td class="text-left">
 						      <span class="btn btn-link" @click="openFile(resource.name)">
@@ -129,7 +133,8 @@
 
 
 
-<script type="text/javascript" src="./assets/js/jquery-3.2.1.slim.min.js"></script>
+<script type="text/javascript" src="./assets/plugins/jquery/jquery-3.2.1.min.js"></script>
+<script type="text/javascript" src="./assets/plugins/jquery/jquery.blockUI.js"></script>
 <script type="text/javascript" src="./assets/js/popper.min.js"></script>
 <script type="text/javascript" src="./assets/plugins/bootstrap/js/bootstrap.min.js"></script>
 <script type="text/javascript" src="./assets/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
@@ -138,6 +143,8 @@
 </html>
 
 <script type="text/javascript">
+
+blockUI();
 
 Vue.http.options.emulateJSON = true; // send
 
@@ -148,18 +155,44 @@ var explorador = new Vue({
 		resources: {
 			folders: [],
 			files: [],
-			path: '/'
+			path: '\\'
 		},
 		orderBy: {
 			key: 'name',
 			order: 1
-		}
+		},
+		search: '',
+		selectedFolders: [],
+		selectedFiles: [],
+		selectedAll: false
 	},
 	created: function(){
 		this.getResources(this.path)
 	},
+	watch: {
+		selectedAll: function(status){
+
+			if(status){
+				for(resource in this.resources.folders)
+					this.selectedFolders.push(this.resources.folders[resource].name)
+				for(resource in this.resources.files)
+					this.selectedFiles.push(this.resources.files[resource].name)
+			}else{
+				this.selectedFolders = []
+				this.selectedFiles = []
+			}
+
+		}
+  },
 	methods: {
+
 		getResources: function(){
+			this.search = ''
+			this.selectedFolders = []
+			this.selectedFiles = []
+
+			blockUI()
+
 			this.$http.post(
 				'emulate.device.route.php',
 				{
@@ -170,39 +203,80 @@ var explorador = new Vue({
 				}
 			).then( response => {
 			  this.resources = response.data
+				unblockUI()
+			}, response => {
+				unblockUI()
 			});
 		},
+
 		splitPath: function(valuePath){
-			return valuePath.split('/').filter(function(item){
-				return !!item;
+			return valuePath.split('\\').filter(function(item){
+				return !!item
 			});
 		},
+
 		sortBy: function(key){
+			this.orderBy.order = this.orderBy.order *- 1
+			this.orderBy.key = key
 
-			this.orderBy.order = this.orderBy.order *- 1;
-			this.orderBy.key = key;
-
-			this.resources.folders = this.resources.folders.sort(compareValues(key, this.orderBy.order));
-			this.resources.files = this.resources.files.sort(compareValues(key, this.orderBy.order));
-
+			this.resources.folders = this.resources.folders.sort(compareValues(key, this.orderBy.order))
+			this.resources.files = this.resources.files.sort(compareValues(key, this.orderBy.order))
 		},
-		back: function(){
 
-			let aux = this.splitPath(this.resources.path);
-			aux.pop();
+		filterSearch: function(resource){
+			if(this.search.length <= 0)
+				return false
+
+				if(resource.name.toLowerCase().indexOf(this.search.toLowerCase()) > -1)
+					return false
+
+			return true
+		},
+
+		goBack: function(){
+			let aux = this.splitPath(this.resources.path)
+			aux.pop()
 
 			if(aux.length)
 				this.resources.path = '\\' + aux.join('\\') + '\\';
 			else
-				this.resources.path = '\\';
+				this.goHome()
 
-			this.getResources();
+			this.getResources()
 		},
-		openFolder: function(folderName){
-			this.resources.path += folderName + '/';
 
-			this.getResources();
+		goHome: function(){
+			this.resources.path = '\\'
+			this.getResources()
+		},
+
+		openFolder: function(folderName){
+			this.resources.path += folderName + '\\'
+
+			this.getResources()
+		},
+
+		openFolderByIndex: function(index){
+			let aux = this.splitPath(this.resources.path)
+			let repeticoes = aux.length-(index+1)
+
+			for(let i = 0; i < repeticoes; i++)
+				aux.pop()
+
+			this.resources.path = '\\' + aux.join('\\') + '\\'
+
+			this.getResources()
+		},
+
+		refresh: function(){
+			this.getResources()
+		},
+
+		selectAll: function(){
+
 		}
+
+
 	}
 
 });
@@ -228,6 +302,28 @@ function compareValues(key, order=1) {
     }
     return comparison * order;
   };
+}
+
+function blockUI(){
+
+	$.blockUI({
+	    message: '<i class="fa fa-spinner fa-pulse fa-10x"></i>',
+	    overlayCSS: {
+	        backgroundColor: '#FFF',
+	        opacity: 0.8,
+	        cursor: 'wait'
+	    },
+	    css: {
+	        border: 0,
+	        padding: 0,
+	        backgroundColor: 'transparent'
+	    }
+	});
+
+}
+
+function unblockUI(){
+	$.unblockUI();
 }
 
 </script>

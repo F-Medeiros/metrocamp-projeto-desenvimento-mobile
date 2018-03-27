@@ -23,7 +23,6 @@ function route($route, $variables){
       break;
   }
 
-
   http_response_code($status_code);
   exit(
     json_encode($retorno)
@@ -34,9 +33,9 @@ function route($route, $variables){
 function listResources($variables){
 
 
-  $path = (property_exists($variables,'path') && $variables->path) ? $variables->path : '/';
+  $path = (property_exists($variables,'path') && $variables->path) ? $variables->path : '\\';
 
-  $path = (substr($path, -1) == '/') ? $path : $path.'/';
+  $path = (substr($path, -1) == '\\') ? $path : $path.'\\';
 
 
   $resources = scandir($path);
@@ -68,7 +67,7 @@ function listResources($variables){
   }
 
   return [
-    'path'    => ($path),
+    'path'    => $path,
     'folders' => $folders,
     'files'   => $files,
   ];
@@ -80,12 +79,4 @@ function dd($var){
   var_dump($var);
   echo "</pre>";
   exit();
-}
-
-function get_absolute_path($path){
-  $aux = realpath($path);
-  $aux = explode('\\',$path);
-  unset($aux[0]);
-  $aux = implode('\\',$aux);
-  return $aux;
 }
