@@ -6,6 +6,7 @@ route(@$_POST['route'], @$_POST['variables']);
 
 function route($route, $variables){
 
+
   $retorno = 'no route';
   $status_code = 404;
 

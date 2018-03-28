@@ -8,12 +8,12 @@
 	<script type="text/javascript" src="./assets/plugins/vue/filters/vue.pretty-bytes.filter.js"></script>
 	<script type="text/javascript" src="./assets/plugins/vue/filters/vue.file-icon.filter.js"></script>
 	<script type="text/javascript" src="./assets/plugins/vue/filters/vue.date-ptbr.filter.js"></script>
+	<script type="text/javascript" src="./assets/plugins/axios/axios.min.js"></script>
 	<link rel="stylesheet" type="text/css" href="./assets/plugins/bootstrap/css/bootstrap.min.css">
 	<link rel="stylesheet" type="text/css" href="./assets/plugins/bootstrap/css/bootstrap-grid.min.css">
 	<link rel="stylesheet" type="text/css" href="./assets/plugins/bootstrap/css/bootstrap-reboot.min.css">
 	<link rel="stylesheet" type="text/css" href="./assets/plugins/fontawesome/css/fontawesome-all.min.css">
 	<link rel="stylesheet" type="text/css" href="./assets/css/personalizacao.css">
-	<link rel="stylesheet" type="text/css" href="./assets/plugins/icheck/skins/minimal/blue.css">
 
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 </head>
@@ -34,9 +34,6 @@
 						<li v-for="(value, index) in splitPath(resources.path)" class="breadcrumb-item">
 							<span class="btn btn-link" @click="openFolderByIndex(index);">{{value}}</span>
 						</li>
-
-						<!-- <li class="breadcrumb-item"><a href="#">Library</a></li>
-						<li class="breadcrumb-item active" aria-current="page">{{message}}</li> -->
 					</ol>
 				</nav>
   			</div>
@@ -59,7 +56,11 @@
 
 		<div class="row">
 			<div class="col-md-12">
-				upload | delete | rename | move | copy
+				<button type="button" class="btn btn-link" data-toggle="modal" data-target="#uploadModal">Upload</button>
+				<button type="button" class="btn btn-link" data-toggle="modal" data-target="#deleteModal">Deletar</button>
+				<button type="button" class="btn btn-link" data-toggle="modal" data-target="#renameModal">Renomear</button>
+				<button type="button" class="btn btn-link" data-toggle="modal" data-target="#copyModal">Copiar</button>
+				<button type="button" class="btn btn-link" data-toggle="modal" data-target="#moveModal">Mover</button>
 			</div>
 		</div>
 
@@ -67,8 +68,8 @@
 
 		<div class="row">
 			<div class="col-md-12">
-				<div class="table-responsive-md">
-					<table class="table table-fixed table-sort">
+				<div class="">
+					<table class="table table-sort">
 						<thead>
 							<tr>
 								<th class="text-right">
@@ -129,8 +130,47 @@
 				</div>
 			</div>
 		</div>
+
+		<!-- Upload -->
+		<div class="modal fade" id="uploadModal" tabindex="-1" role="dialog" aria-labelledby="uploadModalLabel" aria-hidden="true">
+		  <div class="modal-dialog" role="document">
+		    <div class="modal-content">
+		      <div class="modal-header">
+		        <h5 class="modal-title" id="uploadModalLabel">Upload</h5>
+		        <button type="button" class="close" data-dismiss="modal" aria-label="Fechar">
+		          <span aria-hidden="true">&times;</span>
+		        </button>
+		      </div>
+		      <div class="modal-body">
+		        <input type="file" id="uploadFile" class="form-control" ref="uploadFile" v-on:change="handleFileUpload()"/>
+
+		        <div class="row"><div class="col-md-12">&nbsp;</div></div>
+
+		        <div class="progress">
+					<div 	class="progress-bar progress-bar-striped progress-bar-animated"
+							role="progressbar"
+							aria-valuenow="75"
+							aria-valuemin="0"
+							aria-valuemax="100"
+							style="width: 75%"
+							:value.prop="uploadPercentage"
+					>
+							
+					</div>
+				</div>
+
+		      </div>
+		      <div class="modal-footer">
+		        <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
+		        <button type="button" class="btn btn-success" @click="submitFile()">Enviar</button>
+		      </div>
+		    </div>
+		  </div>
+		</div>
+
 	</div>
 
+<!--/Upload -->
 
 
 <script type="text/javascript" src="./assets/plugins/jquery/jquery-3.2.1.min.js"></script>
@@ -164,7 +204,9 @@ var explorador = new Vue({
 		search: '',
 		selectedFolders: [],
 		selectedFiles: [],
-		selectedAll: false
+		selectedAll: false,
+		uploadFile: '',
+    	uploadPercentage: 0
 	},
 	created: function(){
 		this.getResources(this.path)
@@ -271,10 +313,43 @@ var explorador = new Vue({
 		refresh: function(){
 			this.getResources()
 		},
+		handleFileUpload: function(){
+		  this.uploadFile = this.$refs.uploadFile.files[0];
+		},
+		submitFile: function(){
+			console.log('init');
 
-		selectAll: function(){
+		  /*
+		    Initialize the form data
+		  */
+		  let formData = new FormData();
 
-		}
+		  /*
+		    Add the form data we need to submit
+		  */
+		  formData.append('file', this.file);
+
+		  /*
+		    Make the request to the POST /single-file URL
+		  */
+		  axios.post( 'upload.php',
+		    formData,
+		    {
+		      headers: {
+		          'Content-Type': 'multipart/form-data'
+		      },
+		      onUploadProgress: function( progressEvent ) {
+		        this.uploadPercentage = parseInt( Math.round( ( progressEvent.loaded * 100 ) / progressEvent.total ) );
+		        console.log(this.uploadPercentage);
+		      }.bind(this)
+		    }
+		  ).then(function(){
+		    console.log('SUCCESS!!');
+		  })
+		  .catch(function(){
+		    console.log('FAILURE!!');
+		  });
+		},
 
 
 	}
