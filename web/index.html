@@ -149,13 +149,12 @@
 		        <div class="progress">
 					<div 	class="progress-bar progress-bar-striped progress-bar-animated"
 							role="progressbar"
-							aria-valuenow="75"
+							:aria-valuenow.prop="uploadPercentage"
 							aria-valuemin="0"
 							aria-valuemax="100"
-							style="width: 75%"
-							:value.prop="uploadPercentage"
+							:style.prop="`width: ${uploadPercentage}%`"
 					>
-							
+
 					</div>
 				</div>
 
@@ -317,7 +316,6 @@ var explorador = new Vue({
 		  this.uploadFile = this.$refs.uploadFile.files[0];
 		},
 		submitFile: function(){
-			console.log('init');
 
 		  /*
 		    Initialize the form data
@@ -327,7 +325,7 @@ var explorador = new Vue({
 		  /*
 		    Add the form data we need to submit
 		  */
-		  formData.append('file', this.file);
+		  formData.append('file', this.uploadFile);
 
 		  /*
 		    Make the request to the POST /single-file URL
@@ -340,14 +338,13 @@ var explorador = new Vue({
 		      },
 		      onUploadProgress: function( progressEvent ) {
 		        this.uploadPercentage = parseInt( Math.round( ( progressEvent.loaded * 100 ) / progressEvent.total ) );
-		        console.log(this.uploadPercentage);
 		      }.bind(this)
 		    }
 		  ).then(function(){
 		    console.log('SUCCESS!!');
 		  })
-		  .catch(function(){
-		    console.log('FAILURE!!');
+		  .catch(function(e, a){
+		    console.log(e, a);
 		  });
 		},
 
