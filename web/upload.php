@@ -5,18 +5,15 @@
 	if(!file_exists($uploaddir))
 		mkdir($uploaddir);
 
-	$uploadfile = $uploaddir . basename($_FILES['file']['name']);
 
-	if (move_uploaded_file($_FILES['file']['tmp_name'], $uploadfile)) {
-	    echo "Arquivo válido e enviado com sucesso.\n";
-	} else {
-	    echo "Possível ataque de upload de arquivo!\n";
-	}
+	for ($i=0; $i < count($_FILES['file']['name']); $i++) {
 
+		$uploadfile = $uploaddir . basename($_FILES['file']['name'][$i]);
 
-	function dd($var){
-	  echo "<pre>";
-	  var_dump($var);
-	  echo "</pre>";
-	  exit();
+		if (move_uploaded_file($_FILES['file']['tmp_name'][$i], $uploadfile)) {
+		    echo "Arquivo válido e enviado com sucesso.\n";
+		} else {
+		    echo "Possível ataque de upload de arquivo!\n";
+		}
+
 	}

@@ -19,7 +19,8 @@
 </head>
 <body>
 
-	<div id="explorador" class="container">
+<div id="explorador">
+	<div class="container">
 		<div class="row">
   			<div class="col-md-12">
 				<nav aria-label="breadcrumb">
@@ -68,7 +69,7 @@
 
 		<div class="row">
 			<div class="col-md-12">
-				<div class="">
+				<div @dragover="dragOver($event);">
 					<table class="table table-sort">
 						<thead>
 							<tr>
@@ -131,7 +132,48 @@
 			</div>
 		</div>
 
-		<!-- Upload -->
+		<div class="fixed-bottom" style="backgroundColor:white;">
+			<div class="row">
+				<div class="col-md-12">
+					<div class="row">
+						<div class="col-md-12">
+							<button type="button" class="btn btn-info float-right" data-toggle="collapse" data-target="#ListaDeUpload">Lista de upload</button>
+						</div>
+					</div>
+					<div id="ListaDeUpload" class="collapse">
+						<table class="table">
+							<thead>
+								<tr>
+									<th class="text-left">Arquivo</th>
+									<th class="text-center">Status</th>
+									<th class="text-center">Progresso</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr v-for="fila in filaDeUpload">
+									<td class="text-left" width="auto">{{fila.file}}</td>
+									<td class="text-center">{{fila.status}}</td>
+									<td class="text-center">
+										<div class="progress">
+											<div 	class="progress-bar progress-bar-striped progress-bar-animated"
+											role="progressbar"
+											:aria-valuenow.prop="fila.percentagem"
+											aria-valuemin="0"
+											aria-valuemax="100"
+											:style.prop="`width: ${fila.percentagem}%`"
+											>
+											</div>
+										</div>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+				</div>
+			</div>
+		</div>
+	</div>
+
+		<!-- Upload MODAL -->
 		<div class="modal fade" id="uploadModal" tabindex="-1" role="dialog" aria-labelledby="uploadModalLabel" aria-hidden="true">
 		  <div class="modal-dialog" role="document">
 		    <div class="modal-content">
@@ -142,22 +184,8 @@
 		        </button>
 		      </div>
 		      <div class="modal-body">
-		        <input type="file" id="uploadFile" class="form-control" ref="uploadFile" v-on:change="handleFileUpload()"/>
-
+		        <input multiple type="file" id="uploadFile" class="form-control" ref="uploadFile"/>
 		        <div class="row"><div class="col-md-12">&nbsp;</div></div>
-
-		        <div class="progress">
-					<div 	class="progress-bar progress-bar-striped progress-bar-animated"
-							role="progressbar"
-							:aria-valuenow.prop="uploadPercentage"
-							aria-valuemin="0"
-							aria-valuemax="100"
-							:style.prop="`width: ${uploadPercentage}%`"
-					>
-
-					</div>
-				</div>
-
 		      </div>
 		      <div class="modal-footer">
 		        <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
@@ -166,10 +194,18 @@
 		    </div>
 		  </div>
 		</div>
+		<!--/Upload MODAL-->
+
+
+
 
 	</div>
 
-<!--/Upload -->
+
+</div>
+
+
+
 
 
 <script type="text/javascript" src="./assets/plugins/jquery/jquery-3.2.1.min.js"></script>
@@ -203,9 +239,12 @@ var explorador = new Vue({
 		search: '',
 		selectedFolders: [],
 		selectedFiles: [],
+
 		selectedAll: false,
-		uploadFile: '',
-    	uploadPercentage: 0
+		isDragOver: true,
+		filaDeUpload: [],
+		indexView: 0
+
 	},
 	created: function(){
 		this.getResources(this.path)
@@ -312,40 +351,48 @@ var explorador = new Vue({
 		refresh: function(){
 			this.getResources()
 		},
-		handleFileUpload: function(){
-		  this.uploadFile = this.$refs.uploadFile.files[0];
+		dragOver: function(event){
+
+
+			$('#uploadModal').modal()
+
 		},
+
 		submitFile: function(){
 
-		  /*
-		    Initialize the form data
-		  */
-		  let formData = new FormData();
+			for(var i = 0; i < this.$refs.uploadFile.files.length; i++){
+				this.filaDeUpload.push({
+					file: this.$refs.uploadFile.files[i].name,
+					status: 'Enviando',
+					percentagem: 0
+				});
+			}
 
-		  /*
-		    Add the form data we need to submit
-		  */
-		  formData.append('file', this.uploadFile);
+			let formData = new FormData();
 
-		  /*
-		    Make the request to the POST /single-file URL
-		  */
-		  axios.post( 'upload.php',
+			for(var i = 0; i < this.$refs.uploadFile.files.length; i++){
+				formData.append('file[]', this.$refs.uploadFile.files[i]);
+			}
+
+			formData.append('path', this.path);
+
+			axios.post( 'upload.php',
 		    formData,
 		    {
-		      headers: {
-		          'Content-Type': 'multipart/form-data'
-		      },
+		      headers: {'Content-Type': 'multipart/form-data'},
 		      onUploadProgress: function( progressEvent ) {
-		        this.uploadPercentage = parseInt( Math.round( ( progressEvent.loaded * 100 ) / progressEvent.total ) );
+		       // this.filaDeUpload[this.indexView].percentagem = parseInt( Math.round( ( progressEvent.loaded * 100 ) / progressEvent.total ) );
 		      }.bind(this)
 		    }
 		  ).then(function(){
-		    console.log('SUCCESS!!');
+		    //explorador.filaDeUpload[this.indexView].status = "Concluido";
 		  })
 		  .catch(function(e, a){
-		    console.log(e, a);
+		    //explorador.filaDeUpload[this.indexView].status = "Falha";
 		  });
+
+
+
 		},
 
 
@@ -397,5 +444,7 @@ function blockUI(){
 function unblockUI(){
 	$.unblockUI();
 }
+
+
 
 </script>
