@@ -8,6 +8,7 @@
 	<script type="text/javascript" src="./assets/plugins/vue/filters/vue.pretty-bytes.filter.js"></script>
 	<script type="text/javascript" src="./assets/plugins/vue/filters/vue.file-icon.filter.js"></script>
 	<script type="text/javascript" src="./assets/plugins/vue/filters/vue.date-ptbr.filter.js"></script>
+
 	<script type="text/javascript" src="./assets/plugins/axios/axios.min.js"></script>
 	<link rel="stylesheet" type="text/css" href="./assets/plugins/bootstrap/css/bootstrap.min.css">
 	<link rel="stylesheet" type="text/css" href="./assets/plugins/bootstrap/css/bootstrap-grid.min.css">
@@ -43,6 +44,7 @@
 		<div class="row">
 			<div class="col-md-9">
 				<button @click="goBack();" class="btn btn-primary"><i class="fa fa-arrow-left"></i></button>
+				<button @click="refresh();" class="btn btn-primary"><i class="fa fa-sync"></i></button>
 			</div>
 			<div class="col-md-3">
 				<input v-model="search" type="text" class="form-control" placeholder="Pesquisar">
@@ -58,10 +60,12 @@
 		<div class="row">
 			<div class="col-md-12">
 				<button type="button" class="btn btn-link" data-toggle="modal" data-target="#uploadModal">Upload</button>
-				<button type="button" class="btn btn-link" data-toggle="modal" data-target="#deleteModal">Deletar</button>
-				<button type="button" class="btn btn-link" data-toggle="modal" data-target="#renameModal">Renomear</button>
-				<button type="button" class="btn btn-link" data-toggle="modal" data-target="#copyModal">Copiar</button>
-				<button type="button" class="btn btn-link" data-toggle="modal" data-target="#moveModal">Mover</button>
+				<button type="button" class="btn btn-link" data-toggle="modal" data-target="#newFolderModal">Nova Pasta</button>
+				<button type="button" class="btn btn-link" @click="renameValidate();">Renomear</button>
+				<button type="button" class="btn btn-link" @click="copiar()">Copiar</button>
+				<button type="button" class="btn btn-link" @click="cortar();">Cortar</button>
+				<button type="button" class="btn btn-link" @click="colar();">Colar</button>
+				<button type="button" class="btn btn-link" @click="deletar()">Deletar</button>
 			</div>
 		</div>
 
@@ -196,7 +200,69 @@
 		</div>
 		<!--/Upload MODAL-->
 
+		<!-- NewFolder MODAL -->
+		<div class="modal fade" id="newFolderModal" tabindex="-1" role="dialog" aria-labelledby="newFolderModalLabel" aria-hidden="true">
+		  <div class="modal-dialog" role="document">
+		    <div class="modal-content">
+		      <div class="modal-header">
+		        <h5 class="modal-title" id="newFolderModalLabel">Nova Pasta</h5>
+		        <button type="button" class="close" data-dismiss="modal" aria-label="Fechar">
+		          <span aria-hidden="true">&times;</span>
+		        </button>
+		      </div>
+		      <div class="modal-body">
+		        <input type="text" class="form-control" ref="newFolderName" id="newFolderName"/>
+		        <div class="row"><div class="col-md-12">&nbsp;</div></div>
+		      </div>
+		      <div class="modal-footer">
+		        <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
+		        <button type="button" class="btn btn-success" @click="newFolder()">Criar Pasta</button>
+		      </div>
+		    </div>
+		  </div>
+		</div>
+		<!--/NewFolder MODAL-->
 
+		<!-- renameModal MODAL -->
+		<div class="modal fade" id="renameModal" tabindex="-1" role="dialog" aria-labelledby="renameModalLabel" aria-hidden="true">
+		  <div class="modal-dialog" role="document">
+		    <div class="modal-content">
+		      <div class="modal-header">
+		        <h5 class="modal-title" id="renameModalLabel">Renomear</h5>
+		        <button type="button" class="close" data-dismiss="modal" aria-label="Fechar">
+		          <span aria-hidden="true">&times;</span>
+		        </button>
+		      </div>
+		      <div class="modal-body">
+		        <input type="text" class="form-control" ref="renameName" id="renameName"/>
+		        <div class="row"><div class="col-md-12">&nbsp;</div></div>
+		      </div>
+		      <div class="modal-footer">
+		        <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
+		        <button type="button" class="btn btn-success" @click="renomear()">Renomear</button>
+		      </div>
+		    </div>
+		  </div>
+		</div>
+		<!--/renameModal MODAL-->
+
+		<!-- Auth MODAL -->
+		<div class="modal fade" id="authModal" tabindex="-1" role="dialog" aria-labelledby="authModalLabel" aria-hidden="true">
+		  <div class="modal-dialog" role="document">
+		    <div class="modal-content">
+		      <div class="modal-header">
+		        <h5 class="modal-title" id="renameModalLabel">Autenticar</h5>
+		        <button type="button" class="close" data-dismiss="modal" aria-label="Fechar">
+		          <span aria-hidden="true">&times;</span>
+		        </button>
+		      </div>
+		      <div class="modal-body">
+			      <div class="row"><div class="col-md-12">&nbsp;</div></div>
+		      </div>
+		    </div>
+		  </div>
+		</div>
+		<!--/auth MODAL-->
 
 
 	</div>
@@ -241,9 +307,16 @@ var explorador = new Vue({
 		selectedFiles: [],
 
 		selectedAll: false,
-		isDragOver: true,
 		filaDeUpload: [],
-		indexView: 0
+		indexView: 0,
+		clipboard: {
+			action: '',
+			origin: '',
+			destiny: '',
+			folders: [],
+			files: [],
+		},
+		renameNameOld: ''
 
 	},
 	created: function(){
@@ -360,6 +433,8 @@ var explorador = new Vue({
 
 		submitFile: function(){
 
+			blockUI();
+
 			for(var i = 0; i < this.$refs.uploadFile.files.length; i++){
 				this.filaDeUpload.push({
 					file: this.$refs.uploadFile.files[i].name,
@@ -374,26 +449,175 @@ var explorador = new Vue({
 				formData.append('file[]', this.$refs.uploadFile.files[i]);
 			}
 
-			formData.append('path', this.path);
+			formData.append('path', this.resources.path);
+			formData.append('route', 'upload');
 
-			axios.post( 'upload.php',
+			axios.post( 'emulate.device.route.php',
 		    formData,
 		    {
 		      headers: {'Content-Type': 'multipart/form-data'},
 		      onUploadProgress: function( progressEvent ) {
 		       // this.filaDeUpload[this.indexView].percentagem = parseInt( Math.round( ( progressEvent.loaded * 100 ) / progressEvent.total ) );
+		       $('#uploadModal').modal('hide')
 		      }.bind(this)
 		    }
 		  ).then(function(){
 		    //explorador.filaDeUpload[this.indexView].status = "Concluido";
+
+		    unblockUI()		    
+
+		    this.$refs.uploadFile = ''
+
+		    sleepFor(2000)
+
+		    explorador.refresh()
+
 		  })
 		  .catch(function(e, a){
 		    //explorador.filaDeUpload[this.indexView].status = "Falha";
+
+		    unblockUI()		    
+
+		    this.$refs.uploadFile = ''
+
+		    sleepFor(2000)
+
+		    explorador.refresh()
+
 		  });
 
 
 
 		},
+		deletar: function(){
+
+			blockUI()
+
+			this.$http.post(
+				'emulate.device.route.php',
+				{
+					route: "delete",
+					variables: {
+						"path": this.resources.path,
+						"folders": this.selectedFolders,
+						"files": this.selectedFiles
+					}
+				}
+			).then( response => {
+				unblockUI()
+				this.refresh();
+			}, response => {
+				unblockUI()
+				this.refresh()
+			});
+
+		},
+		newFolder: function(folderName){
+
+			blockUI()
+
+			this.$http.post(
+				'emulate.device.route.php',
+				{
+					route: "newFolder",
+					variables: {
+						"path": this.resources.path,
+						"folderName": this.$refs.newFolderName.value,
+					}
+				}
+			).then( response => {
+
+				unblockUI()
+				this.refresh();
+			}, response => {
+				unblockUI()
+				this.refresh()
+			});
+
+			$('#newFolderModal').modal('hide')
+			this.$refs.newFolderName.value = ""
+
+		},
+		copiar(){
+			this.clipboard.action = 'copy';
+			this.clipboard.origin = this.resources.path;
+
+			this.clipboard.folders = this.selectedFolders;
+			this.clipboard.files = this.selectedFiles;
+		},
+		cortar(){
+			this.clipboard.action = 'move';
+			this.clipboard.origin = this.resources.path;
+
+			this.clipboard.folders = this.selectedFolders;
+			this.clipboard.files = this.selectedFiles;
+		},
+		colar(){
+
+			this.clipboard.destiny = this.resources.path;
+
+			blockUI()
+
+			this.$http.post(
+				'emulate.device.route.php',
+				{
+					route: "colar",
+					variables: {
+						"action": this.clipboard.action,
+						"origin": this.clipboard.origin,
+						"destiny": this.clipboard.destiny,
+
+						"folders": this.clipboard.folders,
+						"files": this.clipboard.files,
+					}
+				}
+			).then( response => {
+
+				unblockUI()
+				this.refresh()
+			}, response => {
+				unblockUI()
+				this.refresh()
+			});
+		},
+		renameValidate: function(){
+
+			if(this.selectedFiles.length + this.selectedFolders.length != 1){
+				alert("Selecione apenas um item");
+				return false;
+			}
+
+			this.renameNameOld = (this.selectedFiles.length) ? this.selectedFiles[0] : this.selectedFolders[0];
+			this.$refs.renameName.value = this.renameNameOld;
+
+			$("#renameModal").modal();
+		},
+		renomear: function(){
+
+			blockUI()
+
+			this.$http.post(
+				'emulate.device.route.php',
+				{
+					route: "rename",
+					variables: {
+						"path": this.resources.path,
+						"oldName": this.renameNameOld,
+						"newName": this.$refs.renameName.value
+					}
+				}
+			).then( response => {
+
+				unblockUI()
+				this.refresh()
+			}, response => {
+				unblockUI()
+				this.refresh()
+			});
+
+			$("#renameModal").modal('hide');
+
+		}
 
 
 	}
@@ -445,6 +669,9 @@ function unblockUI(){
 	$.unblockUI();
 }
 
-
+function sleepFor( sleepDuration ){
+    var now = new Date().getTime();
+    while(new Date().getTime() < now + sleepDuration){ /* do nothing */ } 
+}
 
 </script>
