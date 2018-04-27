@@ -2,32 +2,41 @@ package lexus.com.myapplication;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.app.Activity;
-import android.os.Environment;
-import android.util.Log;
 import java.io.*;
-import java.util.*;
-import fi.iki.elonen.NanoHTTPD;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
+import android.util.Log;
 import java.io.IOException;
+import android.net.wifi.WifiManager;
+import android.widget.TextView;
+import fi.iki.elonen.NanoHTTPD;
+import org.json.JSONObject;
+import org.json.JSONException;
+
 
 public class MainActivity extends AppCompatActivity {
 
     private WebServer server;
+    private String ip = "WIFI nao habilitado";
+    private int port = 8080;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+
         server = new WebServer();
         try {
             server.start();
+            WifiManager wm = (WifiManager) getApplicationContext().getSystemService(WIFI_SERVICE);
+            ip = "http://"+formatarIP(wm.getConnectionInfo().getIpAddress())+":"+ String.valueOf(port);
         }catch (IOException e){
-
+            ip = e.getMessage();
         }
+
+        TextView textView = findViewById(R.id.ip);
+        textView.setText(ip);
+
 
     }
 
@@ -45,54 +54,41 @@ public class MainActivity extends AppCompatActivity {
     private class WebServer extends NanoHTTPD {
 
         public WebServer() {
-            super(8080);
+            super(port);
         }
 
         @Override
         public Response serve(IHTTPSession session) {
 
-            String html;
             String requestURL = session.getUri();
             String MIME_type = getMimeType(requestURL);
             String fileLoader = requestURL;
 
 
-            html = readTextFile("web"+fileLoader);
 
+            if(fileLoader.equals("/"))
+                return newFixedLengthResponse(Response.Status.OK,"text/html" , "<script>window.location.href='index.html'</script>");
 
-            return newFixedLengthResponse(Response.Status.OK, MIME_type, html);
-        }
+            try{
 
+                InputStream inputStream = getResources().getAssets().open("web"+fileLoader);
+                return createResponse(Response.Status.OK, MIME_type, inputStream);
 
-
-    }
-
-
-    public String readTextFile(String fileName) {
-
-
-        try {
-            InputStream inputStream = getResources().getAssets().open(fileName);
-
-            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-
-            byte buf[] = new byte[99999];
-            int len;
-            try {
-                while ((len = inputStream.read(buf)) != -1) {
-                    outputStream.write(buf, 0, len);
-                }
-                outputStream.close();
-                inputStream.close();
-            } catch (IOException e) {
-
+            }catch(IOException e){
+                return newFixedLengthResponse(Response.Status.NOT_FOUND ,"text/plain" , "erro..");
             }
-            return outputStream.toString();
 
-        }catch(IOException e){
-            return "";
+
         }
+
+        //Announce that the file server accepts partial content requests
+        private Response createResponse(Response.Status status, String mimeType, InputStream message) {
+            return newChunkedResponse(status, mimeType, message);
+        }
+
+
     }
+
 
     public String getExtension(String texto) {
 
@@ -106,6 +102,9 @@ public class MainActivity extends AppCompatActivity {
         return extensao;
     }
 
+    private String formatarIP(int ip){
+        return String.format("%d.%d.%d.%d", (ip & 0xff), (ip >> 8 & 0xff), (ip >> 16 & 0xff), (ip >> 24 & 0xff));
+    }
 
     private String getMimeType(String requestURL) {
         String MIME_TYPE = "text/plan";
@@ -130,7 +129,7 @@ public class MainActivity extends AppCompatActivity {
             MIME_TYPE = "image/gif";
 
         else if(extension.equals("mp3"))
-            MIME_TYPE = "audio/mpeg3";
+            MIME_TYPE = "audio/mpeg";
 
         else if(extension.equals("html"))
             MIME_TYPE = "text/html";
@@ -159,5 +158,27 @@ public class MainActivity extends AppCompatActivity {
         return MIME_TYPE;
     }
 
+    public String routes(String route, String variables)
+    {
+
+        String retorno = "no route";
+        int status_code = 404;
+
+
+        try{
+
+            JSONObject obj = new JSONObject(variables);
+
+            Log.d("My App", obj.toString());
+
+        }catch (JSONException e){
+            retorno = "no variables";
+            status_code = 402;
+        }
+
+
+
+        return retorno;
+    }
 
 }
