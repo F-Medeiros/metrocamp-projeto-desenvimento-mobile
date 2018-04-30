@@ -3,6 +3,8 @@ package lexus.com.myapplication;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import java.io.*;
+import android.os.Environment;
+import java.text.SimpleDateFormat;
 import android.util.Log;
 import java.io.IOException;
 import android.net.wifi.WifiManager;
@@ -10,6 +12,7 @@ import android.widget.TextView;
 import fi.iki.elonen.NanoHTTPD;
 import org.json.JSONObject;
 import org.json.JSONException;
+import org.json.JSONArray;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -17,6 +20,7 @@ public class MainActivity extends AppCompatActivity {
     private WebServer server;
     private String ip = "WIFI nao habilitado";
     private int port = 8080;
+    private NanoHTTPD.Response.Status HTTP_CODE = NanoHTTPD.Response.Status.OK;
 
 
     @Override
@@ -60,22 +64,28 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public Response serve(IHTTPSession session) {
 
+            HTTP_CODE = Response.Status.OK;
+
             String requestURL = session.getUri();
             String MIME_type = getMimeType(requestURL);
-            String fileLoader = requestURL;
 
 
 
-            if(fileLoader.equals("/"))
-                return newFixedLengthResponse(Response.Status.OK,"text/html" , "<script>window.location.href='index.html'</script>");
+            if(requestURL.equals("/")) {
+                return newFixedLengthResponse(HTTP_CODE,"text/html" , "<script>window.location.href='index.html'</script>");
+            }else if(requestURL.equals("/routes") || requestURL.equals("/routes/")){
+                String processecedRoute = routes(session);
+                return newFixedLengthResponse(HTTP_CODE,"application/json" , processecedRoute);
+            }
 
             try{
 
-                InputStream inputStream = getResources().getAssets().open("web"+fileLoader);
-                return createResponse(Response.Status.OK, MIME_type, inputStream);
+                InputStream inputStream = getResources().getAssets().open("web"+requestURL);
+                return createResponse(HTTP_CODE, MIME_type, inputStream);
 
             }catch(IOException e){
-                return newFixedLengthResponse(Response.Status.NOT_FOUND ,"text/plain" , "erro..");
+                HTTP_CODE = Response.Status.NOT_FOUND;
+                return newFixedLengthResponse(HTTP_CODE ,"text/plain" , "erro..");
             }
 
 
@@ -104,6 +114,42 @@ public class MainActivity extends AppCompatActivity {
 
     private String formatarIP(int ip){
         return String.format("%d.%d.%d.%d", (ip & 0xff), (ip >> 8 & 0xff), (ip >> 16 & 0xff), (ip >> 24 & 0xff));
+    }
+
+
+
+    public String routes(NanoHTTPD.IHTTPSession session)
+    {
+
+        String retorno = "";
+
+        HTTP_CODE = NanoHTTPD.Response.Status.NOT_FOUND;
+
+
+        try{
+
+            String route  = session.getParms().get("route");
+            String variables  = session.getParms().get("variables");
+
+            JSONObject obj_variables = new JSONObject(variables);
+
+            if(route.equals("listResources")) {
+                retorno = listResources(obj_variables);
+            }else{
+                retorno = "Nao chamou";
+            }
+
+        }catch (JSONException e){
+            retorno = "no variables '"+ e.getMessage() +"'";
+            HTTP_CODE = NanoHTTPD.Response.Status.BAD_REQUEST;
+        }catch(Exception e){
+            retorno = "erro aqui: " + session.getParms().toString();// .get("route");
+            HTTP_CODE = NanoHTTPD.Response.Status.BAD_REQUEST;
+        }
+
+
+
+        return retorno;
     }
 
     private String getMimeType(String requestURL) {
@@ -158,27 +204,67 @@ public class MainActivity extends AppCompatActivity {
         return MIME_TYPE;
     }
 
-    public String routes(String route, String variables)
-    {
+     public String listResources(JSONObject variables){
 
-        String retorno = "no route";
-        int status_code = 404;
-
+        String retorno = "";
 
         try{
 
-            JSONObject obj = new JSONObject(variables);
+            String path = variables.getString("path");
 
-            Log.d("My App", obj.toString());
+            if(path.equals(""))
+                path = Environment.getExternalStorageDirectory().getPath();
 
-        }catch (JSONException e){
-            retorno = "no variables";
-            status_code = 402;
+            if(!path.substring(path.length()-1).equals("/"))
+                path = path + "/";
+
+            JSONObject aux_retorno = new JSONObject();
+            JSONArray folders = new JSONArray();
+            JSONArray files = new JSONArray();
+
+            File resource = new File(path);
+
+            if(resource.exists()) {
+
+                File[] resources = resource.listFiles();
+
+                for (int i = 0; i < resources.length; i++) {
+
+                    JSONObject aux_jo = new JSONObject();
+
+                    aux_jo.put("name", resources[i].getName());
+                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+                    aux_jo.put("updated_at", sdf.format(resources[i].lastModified()));
+
+                    if (resources[i].isFile()) {
+                        aux_jo.put("size", resources[i].length());
+                        files.put(aux_jo);
+                    } else if (resources[i].isDirectory()) {
+                        folders.put(aux_jo);
+                    }
+
+                }
+
+                aux_retorno.put("path", path);
+                aux_retorno.put("folders", folders);
+                aux_retorno.put("files", files);
+
+                HTTP_CODE = NanoHTTPD.Response.Status.OK;
+                retorno = aux_retorno.toString();
+
+            }else{
+                HTTP_CODE = NanoHTTPD.Response.Status.NOT_FOUND;
+                retorno = "Diretorio nao encontrado";
+            }
+        }catch(JSONException e){
+            HTTP_CODE = NanoHTTPD.Response.Status.BAD_REQUEST;
+            retorno = "erro ao listar arquivos '"+e.getMessage()+"'";
+        }catch(Exception e){
+            HTTP_CODE = NanoHTTPD.Response.Status.BAD_REQUEST;
+            retorno = "erro ao listar arquivos '"+e.getMessage()+"'";
         }
 
-
-
         return retorno;
-    }
+     }
 
 }

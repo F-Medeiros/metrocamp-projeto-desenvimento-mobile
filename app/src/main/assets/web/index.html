@@ -298,7 +298,7 @@ var explorador = new Vue({
 		resources: {
 			folders: [],
 			files: [],
-			path: '\\'
+			path: '/'
 		},
 		orderBy: {
 			key: 'name',
@@ -349,7 +349,7 @@ var explorador = new Vue({
 			blockUI()
 
 			this.$http.post(
-				'emulate.device.route.php',
+				'routes',
 				{
 					route: "listResources",
 					variables: {
@@ -357,15 +357,17 @@ var explorador = new Vue({
 					}
 				}
 			).then( response => {
+				console.log(response);
 			  this.resources = response.data
 				unblockUI()
 			}, response => {
+				console.log(response);
 				unblockUI()
 			});
 		},
 
 		splitPath: function(valuePath){
-			return valuePath.split('\\').filter(function(item){
+			return valuePath.split('/').filter(function(item){
 				return !!item
 			});
 		},
@@ -393,7 +395,7 @@ var explorador = new Vue({
 			aux.pop()
 
 			if(aux.length)
-				this.resources.path = '\\' + aux.join('\\') + '\\';
+				this.resources.path = '/' + aux.join('/') + '/';
 			else
 				this.goHome()
 
@@ -401,12 +403,12 @@ var explorador = new Vue({
 		},
 
 		goHome: function(){
-			this.resources.path = '\\'
+			this.resources.path = '/'
 			this.getResources()
 		},
 
 		openFolder: function(folderName){
-			this.resources.path += folderName + '\\'
+			this.resources.path += folderName + '/'
 
 			this.getResources()
 		},
@@ -418,7 +420,7 @@ var explorador = new Vue({
 			for(let i = 0; i < repeticoes; i++)
 				aux.pop()
 
-			this.resources.path = '\\' + aux.join('\\') + '\\'
+			this.resources.path = '/' + aux.join('/') + '/'
 
 			this.getResources()
 		},
@@ -454,7 +456,7 @@ var explorador = new Vue({
 			formData.append('path', this.resources.path);
 			formData.append('route', 'upload');
 
-			axios.post( 'emulate.device.route.php',
+			axios.post( 'routes',
 		    formData,
 		    {
 		      headers: {'Content-Type': 'multipart/form-data'},
@@ -466,7 +468,7 @@ var explorador = new Vue({
 		  ).then(function(){
 		    //explorador.filaDeUpload[this.indexView].status = "Concluido";
 
-		    unblockUI()		    
+		    unblockUI()
 
 		    this.$refs.uploadFile = ''
 
@@ -478,7 +480,7 @@ var explorador = new Vue({
 		  .catch(function(e, a){
 		    //explorador.filaDeUpload[this.indexView].status = "Falha";
 
-		    unblockUI()		    
+		    unblockUI()
 
 		    this.$refs.uploadFile = ''
 
@@ -496,7 +498,7 @@ var explorador = new Vue({
 			blockUI()
 
 			this.$http.post(
-				'emulate.device.route.php',
+				'routes',
 				{
 					route: "delete",
 					variables: {
@@ -519,7 +521,7 @@ var explorador = new Vue({
 			blockUI()
 
 			this.$http.post(
-				'emulate.device.route.php',
+				'routes',
 				{
 					route: "newFolder",
 					variables: {
@@ -561,7 +563,7 @@ var explorador = new Vue({
 			blockUI()
 
 			this.$http.post(
-				'emulate.device.route.php',
+				'routes',
 				{
 					route: "colar",
 					variables: {
@@ -599,7 +601,7 @@ var explorador = new Vue({
 			blockUI()
 
 			this.$http.post(
-				'emulate.device.route.php',
+				'routes',
 				{
 					route: "rename",
 					variables: {
@@ -673,7 +675,7 @@ function unblockUI(){
 
 function sleepFor( sleepDuration ){
     var now = new Date().getTime();
-    while(new Date().getTime() < now + sleepDuration){ /* do nothing */ } 
+    while(new Date().getTime() < now + sleepDuration){ /* do nothing */ }
 }
 
 </script>
