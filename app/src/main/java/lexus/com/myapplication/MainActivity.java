@@ -128,8 +128,13 @@ public class MainActivity extends AppCompatActivity {
 
         try{
 
-            String route  = session.getParms().get("route");
-            String variables  = session.getParms().get("variables");
+            HashMap<String, String> postmap = new HashMap<String, String>();
+            session.parseBody(postmap);
+            String route = postmap.get("route");
+            String variables = postmap.get("variables");
+
+            //String route  = session.getParms().get("route");
+            //String variables  = session.getParms().get("variables");
 
             JSONObject obj_variables = new JSONObject(variables);
 
@@ -152,7 +157,7 @@ public class MainActivity extends AppCompatActivity {
         return retorno;
     }
 
-    private String getMimeType(String requestURL) {
+    public String getMimeType(String requestURL) {
         String MIME_TYPE = "text/plan";
         String extension = getExtension(requestURL);
 
