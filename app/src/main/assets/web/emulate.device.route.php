@@ -1,5 +1,10 @@
 <?php
+header('Access-Control-Allow-Origin: *');
 
+http_response_code(404);
+
+echo "<pre>", var_dump($_POST);
+exit;
 
 route(@$_POST['route'], @$_POST['variables']);
 
@@ -18,30 +23,31 @@ function route($route, $variables){
   }
 
   switch ($route) {
-    case 'listResources':
+    case 'listResources': // #
       $retorno = listResources($variables);
       $status_code = 200;
       break;
+    case 'newFolder': // #
+        $retorno = newFolder($variables);
+        $status_code = 200;
+        break;
+    case 'rename': // #
+        $retorno = renomear($variables);
+        $status_code = 200;
+        break;
+    case 'delete': // #
+        $retorno = delete($variables);
+        $status_code = 200;
+        break;
+    case 'colar':
+        $retorno = colar($variables);
+        $status_code = 200;
+        break;
     case 'upload':
       $retorno = upload($variables);
       $status_code = 200;
       break;
-    case 'delete':
-      $retorno = delete($variables);
-      $status_code = 200;
-      break;
-    case 'newFolder':
-      $retorno = newFolder($variables);
-      $status_code = 200;
-      break;
-    case 'colar':
-      $retorno = colar($variables);
-      $status_code = 200;
-      break;
-    case 'rename':
-      $retorno = renomear($variables);
-      $status_code = 200;
-      break;
+
   }
 
   http_response_code($status_code);

@@ -298,7 +298,7 @@ var explorador = new Vue({
 		resources: {
 			folders: [],
 			files: [],
-			path: '/'
+			path: ''
 		},
 		orderBy: {
 			key: 'name',
@@ -307,6 +307,8 @@ var explorador = new Vue({
 		search: '',
 		selectedFolders: [],
 		selectedFiles: [],
+		//requestURL: "http://localhost:8080/emulate.device.route.php",
+		requestURL: "routes",
 
 		selectedAll: false,
 		filaDeUpload: [],
@@ -349,12 +351,10 @@ var explorador = new Vue({
 			blockUI()
 
 			this.$http.post(
-				'routes',
+				this.requestURL,
 				{
 					route: "listResources",
-					variables: {
-						"path": this.resources.path
-					}
+					path: this.resources.path,
 				}
 			).then( response => {
 				console.log(response);
@@ -456,7 +456,7 @@ var explorador = new Vue({
 			formData.append('path', this.resources.path);
 			formData.append('route', 'upload');
 
-			axios.post( 'routes',
+			axios.post( this.requestURL,
 		    formData,
 		    {
 		      headers: {'Content-Type': 'multipart/form-data'},
@@ -498,19 +498,19 @@ var explorador = new Vue({
 			blockUI()
 
 			this.$http.post(
-				'routes',
+				this.requestURL,
 				{
 					route: "delete",
-					variables: {
-						"path": this.resources.path,
-						"folders": this.selectedFolders,
-						"files": this.selectedFiles
-					}
+					path: this.resources.path,
+					folders: JSON.stringify(this.selectedFolders),
+					files: JSON.stringify(this.selectedFiles),
 				}
 			).then( response => {
+				console.log(response);
 				unblockUI()
 				this.refresh();
 			}, response => {
+				console.log(response);
 				unblockUI()
 				this.refresh()
 			});
@@ -521,13 +521,11 @@ var explorador = new Vue({
 			blockUI()
 
 			this.$http.post(
-				'routes',
+				this.requestURL,
 				{
 					route: "newFolder",
-					variables: {
-						"path": this.resources.path,
-						"folderName": this.$refs.newFolderName.value,
-					}
+					path: this.resources.path,
+					folderName: this.$refs.newFolderName.value,
 				}
 			).then( response => {
 
@@ -563,17 +561,16 @@ var explorador = new Vue({
 			blockUI()
 
 			this.$http.post(
-				'routes',
+				this.requestURL,
 				{
 					route: "colar",
-					variables: {
-						"action": this.clipboard.action,
-						"origin": this.clipboard.origin,
-						"destiny": this.clipboard.destiny,
+					action: this.clipboard.action,
+					origin: this.clipboard.origin,
+					destiny: this.clipboard.destiny,
 
-						"folders": this.clipboard.folders,
-						"files": this.clipboard.files,
-					}
+					folders: JSON.stringify(this.clipboard.folders),
+					files: JSON.stringify(this.clipboard.files),
+
 				}
 			).then( response => {
 
@@ -601,14 +598,12 @@ var explorador = new Vue({
 			blockUI()
 
 			this.$http.post(
-				'routes',
+				this.requestURL,
 				{
 					route: "rename",
-					variables: {
-						"path": this.resources.path,
-						"oldName": this.renameNameOld,
-						"newName": this.$refs.renameName.value
-					}
+					path: this.resources.path,
+					oldName: this.renameNameOld,
+					newName: this.$refs.renameName.value,
 				}
 			).then( response => {
 

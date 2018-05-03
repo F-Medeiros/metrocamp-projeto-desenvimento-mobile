@@ -7,12 +7,17 @@ import android.os.Environment;
 import java.text.SimpleDateFormat;
 import android.util.Log;
 import java.io.IOException;
+import java.util.HashMap;
+
 import android.net.wifi.WifiManager;
 import android.widget.TextView;
 import fi.iki.elonen.NanoHTTPD;
 import org.json.JSONObject;
 import org.json.JSONException;
 import org.json.JSONArray;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -121,34 +126,64 @@ public class MainActivity extends AppCompatActivity {
     public String routes(NanoHTTPD.IHTTPSession session)
     {
 
-        String retorno = "";
+        String retorno = "chamou routes";
 
-        HTTP_CODE = NanoHTTPD.Response.Status.NOT_FOUND;
+        HTTP_CODE = NanoHTTPD.Response.Status.OK;
 
 
         try{
 
             HashMap<String, String> postmap = new HashMap<String, String>();
+
             session.parseBody(postmap);
-            String route = postmap.get("route");
-            String variables = postmap.get("variables");
 
-            //String route  = session.getParms().get("route");
-            //String variables  = session.getParms().get("variables");
 
-            JSONObject obj_variables = new JSONObject(variables);
+            String route = session.getParms().get("route");
+
+            String path = session.getParms().get("path");
+
+            if(path.equals(""))
+                path = Environment.getExternalStorageDirectory().getPath();
+
+            if(!path.substring(path.length()-1).equals("/"))
+                path = path + "/";
+
 
             if(route.equals("listResources")) {
-                retorno = listResources(obj_variables);
+                retorno = listResources(path);
+
+            }else if(route.equals("newFolder")){
+                String folderName = session.getParms().get("folderName");
+                retorno = newFolder(path, folderName);
+
+            }else if(route.equals("rename")){
+                String oldName = session.getParms().get("oldName");
+                String newName = session.getParms().get("newName");
+                retorno = renomear(path, oldName, newName);
+
+            }else if(route.equals("delete")){
+
+                JSONArray files = new JSONArray(session.getParms().get("files"));
+                JSONArray folders = new JSONArray(session.getParms().get("folders"));
+
+                retorno = deletar(path, files, folders);
+
+            }else if(route.equals("colar")){
+
+                String action = session.getParms().get("action");
+                String origin = session.getParms().get("origin");
+                String destiny = session.getParms().get("destiny");
+                JSONArray files = new JSONArray(session.getParms().get("files"));
+                JSONArray folders = new JSONArray(session.getParms().get("folders"));
+
+                colar(path, action, origin, destiny, files, folders);
+
             }else{
-                retorno = "Nao chamou";
+               retorno = "Nao chamou";
             }
 
-        }catch (JSONException e){
-            retorno = "no variables '"+ e.getMessage() +"'";
-            HTTP_CODE = NanoHTTPD.Response.Status.BAD_REQUEST;
         }catch(Exception e){
-            retorno = "erro aqui: " + session.getParms().toString();// .get("route");
+            retorno = "erro aqui: " + session.getParms().toString() + " || " + e.getMessage();
             HTTP_CODE = NanoHTTPD.Response.Status.BAD_REQUEST;
         }
 
@@ -209,19 +244,11 @@ public class MainActivity extends AppCompatActivity {
         return MIME_TYPE;
     }
 
-     public String listResources(JSONObject variables){
+    public String listResources(String path){
 
-        String retorno = "";
+        String retorno = "listResources";
 
         try{
-
-            String path = variables.getString("path");
-
-            if(path.equals(""))
-                path = Environment.getExternalStorageDirectory().getPath();
-
-            if(!path.substring(path.length()-1).equals("/"))
-                path = path + "/";
 
             JSONObject aux_retorno = new JSONObject();
             JSONArray folders = new JSONArray();
@@ -270,6 +297,214 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return retorno;
-     }
+    }
 
+    public String newFolder(String path, String folderName){
+        String retorno = "";
+
+        File folder = new File(path + folderName);
+
+        try {
+
+            JSONObject aux_retorno = new JSONObject();
+
+            if(folder.exists()){
+
+                aux_retorno.put("status", false);
+
+            }else{
+
+                try {
+                    folder.mkdirs();
+
+                    if(folder.exists()){
+                        aux_retorno.put("status", true);
+                    }else{
+
+                        aux_retorno.put("status", false);
+                    }
+
+                }catch(Exception e){
+
+                    aux_retorno.put("status", false);
+                }
+            }
+
+
+            if(aux_retorno.getBoolean("status") == true)
+                HTTP_CODE = NanoHTTPD.Response.Status.OK;
+            else
+                HTTP_CODE = NanoHTTPD.Response.Status.BAD_REQUEST;
+
+            retorno = aux_retorno.toString();
+
+
+        }catch(JSONException e){
+
+            HTTP_CODE = NanoHTTPD.Response.Status.BAD_REQUEST;
+        }
+
+
+        return retorno;
+    }
+
+    public String renomear(String path, String oldName, String newName){
+        String retorno = "";
+
+        File oldFile = new File(path + oldName);
+        File newFile = new File(path + newName);
+
+        try {
+
+            JSONObject aux_retorno = new JSONObject();
+
+            if(!oldFile.exists() || newFile.exists()){
+                aux_retorno.put("status", false);
+
+            }else{
+
+                oldFile.renameTo(newFile);
+
+                if(newFile.exists()){
+                    aux_retorno.put("status", true);
+                }else{
+                    aux_retorno.put("status", false);
+                }
+
+            }
+
+            if(aux_retorno.getBoolean("status") == true)
+                HTTP_CODE = NanoHTTPD.Response.Status.OK;
+            else
+                HTTP_CODE = NanoHTTPD.Response.Status.BAD_REQUEST;
+
+
+            retorno = aux_retorno.toString();
+
+        }catch(JSONException e){
+            retorno = "{\"status\":false, \"message\": \""+e.getMessage()+"\"}";
+            HTTP_CODE = NanoHTTPD.Response.Status.BAD_REQUEST;
+
+        }catch(Exception e){
+            retorno = "{\"status\":false, \"message\": \""+e.getMessage()+"\"}";
+            HTTP_CODE = NanoHTTPD.Response.Status.BAD_REQUEST;
+        }
+
+        return retorno;
+    }
+
+    public String deletar(String path, JSONArray files, JSONArray folders){
+
+        String retorno = "";
+
+        try {
+
+            JSONObject aux_retorno = new JSONObject();
+
+            for (int i = 0; i < folders.length(); i++) {
+                String folderName = folders.get(i).toString();
+                deleteRecursive(new File(path + folderName));
+            }
+
+
+            for (int i = 0; i < files.length(); i++) {
+                String fileName = files.get(i).toString();
+                File file = new File(path + fileName);
+                file.delete();
+            }
+
+
+            aux_retorno.put("status", true);
+
+            if(aux_retorno.getBoolean("status") == true)
+                HTTP_CODE = NanoHTTPD.Response.Status.OK;
+            else
+                HTTP_CODE = NanoHTTPD.Response.Status.BAD_REQUEST;
+
+            retorno = aux_retorno.toString();
+
+        }catch (JSONException e){
+            retorno = "{\"status\":false, \"message\": \""+e.getMessage()+"\"}";
+            HTTP_CODE = NanoHTTPD.Response.Status.BAD_REQUEST;
+        }catch(Exception e){
+            retorno = "{\"status\":false, \"message\": \""+e.getMessage()+"\"}";
+            HTTP_CODE = NanoHTTPD.Response.Status.BAD_REQUEST;
+        }
+
+        return retorno;
+    }
+
+    public String colar(String path, String action, String origin, String destiny, JSONArray files, JSONArray folders){
+        String retorno = "";
+
+        try {
+
+            JSONObject aux_retorno = new JSONObject();
+
+            for (int i = 0; i < folders.length(); i++) {
+                String folder = folders.get(i).toString();
+                xcopy(origin + folder, destiny + folder);
+
+            }
+
+
+            for (int i = 0; i < files.length(); i++) {
+                String file = folders.get(i).toString();
+                xcopy(origin + file, destiny + file);
+            }
+
+
+            aux_retorno.put("status", true);
+
+            if(aux_retorno.getBoolean("status") == true)
+                HTTP_CODE = NanoHTTPD.Response.Status.OK;
+            else
+                HTTP_CODE = NanoHTTPD.Response.Status.BAD_REQUEST;
+
+            retorno = aux_retorno.toString();
+
+        }catch (JSONException e){
+            retorno = "{\"status\":false, \"message\": \""+e.getMessage()+"\"}";
+            HTTP_CODE = NanoHTTPD.Response.Status.BAD_REQUEST;
+        }catch(Exception e){
+            retorno = "{\"status\":false, \"message\": \""+e.getMessage()+"\"}";
+            HTTP_CODE = NanoHTTPD.Response.Status.BAD_REQUEST;
+        }
+
+        return retorno;
+    }
+
+    void deleteRecursive(File fileOrDirectory) {
+        if (fileOrDirectory.isDirectory())
+            for (File child : fileOrDirectory.listFiles())
+                deleteRecursive(child);
+
+        fileOrDirectory.delete();
+    }
+
+
+    void xcopy(String origin, String destiny){
+
+        try {
+            File OriginLocation = new File(origin);
+            File DestinyLocation = new File(destiny);
+
+            InputStream in = new FileInputStream(OriginLocation);
+            OutputStream out = new FileOutputStream(DestinyLocation);
+
+            // Copy the bits from instream to outstream
+            byte[] buf = new byte[1024];
+            int len;
+
+            while ((len = in.read(buf)) > 0) {
+                out.write(buf, 0, len);
+            }
+
+            in.close();
+            out.close();
+        } catch(Exception e){
+
+
+        }
+    }
 }
