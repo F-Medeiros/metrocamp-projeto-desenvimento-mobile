@@ -483,6 +483,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+
     void xcopy(String origin, String destiny){
 
         try {
@@ -501,6 +502,9 @@ public class MainActivity extends AppCompatActivity {
             }
 
             in.close();
+            in = null;
+
+            out.flush();
             out.close();
         } catch(Exception e){
 
