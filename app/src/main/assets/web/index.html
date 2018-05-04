@@ -112,7 +112,7 @@
 						      <input type="checkbox" :value="resource.name" v-model="selectedFiles">
 						    </td>
 						    <td class="text-left">
-						      <span class="btn btn-link" @click="openFile(resource.name)">
+						      <span class="btn btn-link" @click="download(resource.name)">
 						        <i :class="resource.name | fileIcon"></i>
 						        {{resource.name}}
 						      </span>
@@ -357,11 +357,11 @@ var explorador = new Vue({
 					path: this.resources.path,
 				}
 			).then( response => {
-				console.log(response);
+
 			  this.resources = response.data
 				unblockUI()
 			}, response => {
-				console.log(response);
+
 				unblockUI()
 			});
 		},
@@ -449,9 +449,11 @@ var explorador = new Vue({
 
 			let formData = new FormData();
 
-			for(var i = 0; i < this.$refs.uploadFile.files.length; i++){
-				formData.append('file[]', this.$refs.uploadFile.files[i]);
-			}
+			// for(var i = 0; i < this.$refs.uploadFile.files.length; i++){
+			// 	formData.append('file[]', this.$refs.uploadFile.files[i]);
+			// }
+
+			formData.append('file', this.$refs.uploadFile.files[0]);
 
 			formData.append('path', this.resources.path);
 			formData.append('route', 'upload');
@@ -466,6 +468,7 @@ var explorador = new Vue({
 		      }.bind(this)
 		    }
 		  ).then(function(){
+
 		    //explorador.filaDeUpload[this.indexView].status = "Concluido";
 
 		    unblockUI()
@@ -506,11 +509,11 @@ var explorador = new Vue({
 					files: JSON.stringify(this.selectedFiles),
 				}
 			).then( response => {
-				console.log(response);
+
 				unblockUI()
 				this.refresh();
 			}, response => {
-				console.log(response);
+
 				unblockUI()
 				this.refresh()
 			});
@@ -548,7 +551,7 @@ var explorador = new Vue({
 			this.clipboard.files = this.selectedFiles;
 		},
 		cortar(){
-			this.clipboard.action = 'move';
+			this.clipboard.action = 'cut';
 			this.clipboard.origin = this.resources.path;
 
 			this.clipboard.folders = this.selectedFolders;
@@ -563,7 +566,8 @@ var explorador = new Vue({
 			this.$http.post(
 				this.requestURL,
 				{
-					route: "colar",
+					route: "paste",
+					path: this.resources.path,
 					action: this.clipboard.action,
 					origin: this.clipboard.origin,
 					destiny: this.clipboard.destiny,
@@ -573,10 +577,11 @@ var explorador = new Vue({
 
 				}
 			).then( response => {
-
+				console.log(response);
 				unblockUI()
 				this.refresh()
 			}, response => {
+				console.log(response);
 				unblockUI()
 				this.refresh()
 			});
@@ -615,6 +620,35 @@ var explorador = new Vue({
 			});
 
 			$("#renameModal").modal('hide');
+
+		},
+		download: function(auxFileName){
+
+			blockUI()
+
+			this.$http.post(
+				this.requestURL,
+				{
+					route: "download",
+					path: this.resources.path,
+					fileName: auxFileName,
+				}
+			).then( response => {
+
+				var blob = new Blob([response.data], {
+							type: response.headers.map["content-type"]["0"]
+				});
+
+				var url = window.URL.createObjectURL(blob)
+				window.location.href = (url);
+
+				unblockUI()
+				this.refresh()
+			}, response => {
+				unblockUI()
+				this.refresh()
+			});
+
 
 		}
 

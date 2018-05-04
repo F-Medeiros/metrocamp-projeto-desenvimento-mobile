@@ -39,7 +39,7 @@ function route($route, $variables){
         $retorno = delete($variables);
         $status_code = 200;
         break;
-    case 'colar':
+    case 'colar': // #
         $retorno = colar($variables);
         $status_code = 200;
         break;
