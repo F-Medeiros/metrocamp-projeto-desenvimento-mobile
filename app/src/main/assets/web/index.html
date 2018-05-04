@@ -632,15 +632,21 @@ var explorador = new Vue({
 					route: "download",
 					path: this.resources.path,
 					fileName: auxFileName,
-				}
+				},
+				{
+		          responseType: 'arraybuffer',
+		          emulateJSON: true,
+		        }
 			).then( response => {
 
-				var blob = new Blob([response.data], {
-							type: response.headers.map["content-type"]["0"]
+				let blob = new Blob([response.data], {
+					type: response.headers.map["content-type"]["0"]
 				});
 
-				var url = window.URL.createObjectURL(blob)
-				window.location.href = (url);
+		        let link = document.createElement('a')
+		        link.href = window.URL.createObjectURL(blob)
+		        link.download = auxFileName
+		        link.click()
 
 				unblockUI()
 				this.refresh()
