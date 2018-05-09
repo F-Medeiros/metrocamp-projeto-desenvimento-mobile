@@ -146,7 +146,9 @@ public class MainActivity extends AppCompatActivity {
                 String path = session.getParms().get("path");
 
                 if (path.equals(""))
-                    path = Environment.getExternalStorageDirectory().getPath();
+                   path = Environment.getExternalStorageDirectory().getPath();
+                   //path = Environment.getDataDirectory().getPath();
+                   // path = "/";
 
                 if (!path.substring(path.length() - 1).equals("/"))
                     path = path + "/";
@@ -318,7 +320,7 @@ public class MainActivity extends AppCompatActivity {
             retorno = "erro ao listar arquivos '"+e.getMessage()+"'";
         }catch(Exception e){
             HTTP_CODE = NanoHTTPD.Response.Status.BAD_REQUEST;
-            retorno = "erro ao listar arquivos '"+e.getMessage()+"'";
+            retorno = "erro ao listar arquivos. '"+e.getMessage()+"' " + path;
         }
 
         return retorno;
