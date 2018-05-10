@@ -439,6 +439,8 @@ var explorador = new Vue({
 
 			blockUI();
 
+			$("#ListaDeUpload").collapse('show');
+
 			for(var i = 0; i < this.$refs.uploadFile.files.length; i++){
 				this.filaDeUpload.push({
 					file: this.$refs.uploadFile.files[i].name,
@@ -463,8 +465,12 @@ var explorador = new Vue({
 		    {
 		      headers: {'Content-Type': 'multipart/form-data'},
 		      onUploadProgress: function( progressEvent ) {
-		       // this.filaDeUpload[this.indexView].percentagem = parseInt( Math.round( ( progressEvent.loaded * 100 ) / progressEvent.total ) );
+		       this.filaDeUpload[this.indexView].percentagem = parseInt( Math.round( ( progressEvent.loaded * 100 ) / progressEvent.total ) );
 		       $('#uploadModal').modal('hide')
+
+					 if(this.filaDeUpload[this.indexView].percentagem == 100)
+					 	explorador.refresh()
+
 		      }.bind(this)
 		    }
 		  ).then(function(){
@@ -475,7 +481,7 @@ var explorador = new Vue({
 
 		    this.$refs.uploadFile = ''
 
-		    sleepFor(2000)
+		    //sleepFor(2000)
 
 		    explorador.refresh()
 
